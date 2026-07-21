@@ -158,16 +158,16 @@ class PromptSubsection implements PromptNode {
   }
 
   public documents(
-    prefix: string,
+    title: string,
     boundary: string,
-    documentName: string,
+    documentType: string,
     buildDocumentList?: (documentList: SectionDocumentList) => void,
   ) {
     const documentList = new SectionDocumentList(
       this.spec,
-      prefix,
+      title,
       boundary,
-      documentName,
+      documentType,
     );
 
     buildDocumentList?.(documentList);
@@ -193,6 +193,19 @@ class PromptSection implements PromptNode {
     this.spec = spec;
     this.title = title;
     this.children = [];
+  }
+
+  public subsection(
+    header: string,
+    buildSubsection?: (subsection: PromptSubsection) => void,
+  ) {
+    const subsection = new PromptSubsection(this.spec, header);
+
+    buildSubsection?.(subsection);
+
+    this.children.push(subsection);
+
+    return this;
   }
 
   public render() {
