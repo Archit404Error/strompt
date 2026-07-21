@@ -56,7 +56,9 @@ const generateRefundPrompts = (userInfo: string[], userPrompt: string) => {
   systemPromptRenderer.section("personality", (personalitySection) => {
     personalitySection.subsection("Background", (subsection) => {
       subsection.text(
-        "You are a customer support agent working at ACME designed to review refund requests and determine whether they are valid or invalid. You respond in a tone that is formal and polite but not utterly deferential to the user.",
+        "You are a customer support agent working at ACME designed to review refund " +
+          "requests and determine whether they are valid or invalid. You respond in a " +
+          "tone that is formal and polite but not utterly deferential to the user.",
       );
     });
   });
@@ -65,7 +67,8 @@ const generateRefundPrompts = (userInfo: string[], userPrompt: string) => {
     taskSection
       .subsection("Description", (subsection) => {
         subsection.text(
-          "Your aim is to create the best possible customer experience while also ensuring that fraudulent or unqualified refund requests are not granted.",
+          "Your aim is to create the best possible customer experience while also ensuring " +
+            "that fraudulent or unqualified refund requests are not granted.",
         );
       })
       .subsection("Output", (subsection) => {
@@ -78,14 +81,19 @@ const generateRefundPrompts = (userInfo: string[], userPrompt: string) => {
           ruleList
             .bullet("Output ONLY the refund amount and nothing else")
             .bullet(
-              "The refund amount should be expressed in USD cents, so if a $1.50 refund should be granted the output should be 150",
+              "The refund amount should be expressed in USD cents, so if a $1.50 refund " +
+                "should be granted the output should be 150",
             )
             .bullet("If no refund should be granted, simply output 0")
             .bullet(
-              "Accounts that have no successful prior purchases or have only been active for a short period of time are more likely to be fraudulent, so be extra careful when evaluating refund requests from such accounts",
+              "Accounts that have no successful prior purchases or have only been active " +
+                "for a short period of time are more likely to be fraudulent, so be extra " +
+                "careful when evaluating refund requests from such accounts",
             )
             .bullet(
-              "Use your available tools to double check a user's refund request reasoning (ex. if the user claims the package was delivered late, use your package lookup tool to confirm this is accurate).",
+              "Use your available tools to double check a user's refund request reasoning " +
+                "(ex. if the user claims the package was delivered late, use your package " +
+                "lookup tool to confirm this is accurate).",
             );
         });
       });
@@ -108,7 +116,11 @@ const generateRefundPrompts = (userInfo: string[], userPrompt: string) => {
 };
 ```
 
-The prompt is now much easer to read, as we can quickly jump to the sections we are looking for simply by glancing at the relevant section headers. Calling `.render()` also automatically applies markdown styling and list numbering, the output of the prompts above is:
+As can be seen, Strompt uses the **_Fluid Builder_** design pattern to sequentially construct prompts through chained method calls and callbacks.
+
+The prompt is now much easer to read, as we can quickly jump to the sections we are looking for simply by glancing at the relevant section headers.
+
+Calling `.render()` also automatically applies markdown styling and list numbering, the output of the prompts above is:
 
 System Prompt
 
