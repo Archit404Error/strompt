@@ -53,6 +53,12 @@ abstract class SectionList implements PromptNode {
     this.bullets = [];
   }
 
+  /**
+   * Adds a bullet point to this list
+   *
+   * @param text bullet content
+   * @returns The current instance
+   */
   public bullet(text: string) {
     this.bullets.push(text);
 
@@ -94,6 +100,12 @@ class SectionDocumentList implements PromptNode {
     this.documents = [];
   }
 
+  /**
+   * Adds a document to this document list
+   *
+   * @param text the stringified document
+   * @returns The current `SectionDocumentList` instance
+   */
   public document(text: string) {
     this.documents.push(text);
 
@@ -119,18 +131,38 @@ class PromptSubsection implements PromptNode {
     this.children = [new SectionHeader(this.spec, header)];
   }
 
+  /**
+   * Adds a subheader to this subsection
+   *
+   * @param text subheader text content
+   * @returns The current `PromptSubsection` instance
+   */
   public subheader(text: string) {
     this.children.push(new SectionSubheader(this.spec, text));
 
     return this;
   }
 
+  /**
+   * Adds text to this subsection
+   *
+   * @param text text content
+   * @returns The current `PromptSubsection` instance
+   */
   public text(text: string) {
     this.children.push(new SectionText(this.spec, text));
 
     return this;
   }
 
+  /**
+   * Adds an ordered list to this subsection
+   *
+   * @param title list title
+   * @param buildOrderedList optionally, a callback that runs on the created ordered
+   *  list to add bullets
+   * @returns The current `PromptSubsection` instance
+   */
   public orderedList(
     title: string,
     buildOrderedList?: (orderedList: SectionOrderedList) => void,
@@ -144,6 +176,14 @@ class PromptSubsection implements PromptNode {
     return this;
   }
 
+  /**
+   * Adds an unordered list to this subsection
+   *
+   * @param title list title
+   * @param buildUnorderedList optionally, a callback that runs on the created unordered
+   *  list to add bullets
+   * @returns The current `PromptSubsection` instance
+   */
   public unorderedList(
     title: string,
     buildUnorderedList?: (unorderedList: SectionUnorderedList) => void,
@@ -157,6 +197,16 @@ class PromptSubsection implements PromptNode {
     return this;
   }
 
+  /**
+   * Adds a document list to this subsection
+   *
+   * @param title list title
+   * @param boundary boundary string to mark list start and end
+   * @param documentType type of document being listed
+   * @param buildDocumentList optionally, a callback that runs on the newly created
+   *  document list to add documents
+   * @returns The current `PromptSubsection` instance
+   */
   public documents(
     title: string,
     boundary: string,
@@ -195,6 +245,13 @@ class PromptSection implements PromptNode {
     this.children = [];
   }
 
+  /**
+   * Creates a subsection within this `PromptSection`
+   *
+   * @param header subsection title
+   * @param buildSubsection optionally, a callback that runs on the created subsection to add subnodes
+   * @returns The current `PromptSection` instance
+   */
   public subsection(
     header: string,
     buildSubsection?: (subsection: PromptSubsection) => void,
@@ -220,11 +277,25 @@ export class PromptRenderer implements PromptNode {
   private spec: PromptRendererSpec;
   private children: PromptNode[];
 
+  /**
+   * Initializes a new `PromptRenderer` instance
+   *
+   * @param spec a `PromptRendererSpec` instance that specifies rendering methods for
+   *  every `PromptNode`
+   */
   constructor(spec: PromptRendererSpec) {
     this.spec = spec;
     this.children = [];
   }
 
+  /**
+   * Adds a new prompt section
+   *
+   * @param name the name of the section
+   * @param buildSection optionally, a callback that runs on the created section to add
+   *  subnodes
+   * @returns The current `PromptRenderer` instance
+   */
   public section(
     name: string,
     buildSection?: (section: PromptSection) => void,
@@ -238,10 +309,21 @@ export class PromptRenderer implements PromptNode {
     return this;
   }
 
+  /**
+   * Renders the prompt tree for this renderer instance
+   *
+   * @returns The rendered prompt, as a string
+   */
   public render() {
     return this.spec.renderPrompt(this.children.map((child) => child.render()));
   }
 
+  /**
+   * Overrides rendering logic for this renderer instance
+   *
+   * @param overriddenSpec a partial `PromptRendererSpec` consisting of rendering methods
+   *  to override
+   */
   public overrideSpec(overriddenSpec: Partial<PromptRendererSpec>) {
     Object.assign<PromptRendererSpec, Partial<PromptRendererSpec>>(
       this.spec,
