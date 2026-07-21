@@ -23,7 +23,7 @@ const markdownRendererSpec: PromptRendererSpec = {
   renderSectionDocumentList(title, boundary, documentType, documents) {
     const renderedDocuments = documents
       .map((document, idx) => {
-        return `[${documentType} ${idx}]\n${document}`;
+        return `[${documentType} ${idx + 1}]\n${document}`;
       })
       .join("\n\n");
 
@@ -31,7 +31,7 @@ const markdownRendererSpec: PromptRendererSpec = {
   },
   renderSectionOrderedList(title, bullets) {
     const renderedBullets = bullets
-      .map((bullet, idx) => `${idx}. ${bullet}`)
+      .map((bullet, idx) => `${idx + 1}. ${bullet}`)
       .join("\n");
 
     return `${title}:\n${renderedBullets}`;
