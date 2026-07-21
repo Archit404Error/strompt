@@ -6,7 +6,7 @@ const markdownRendererSpec: PromptRendererSpec = {
     return renderedSubNodes.join("\n\n");
   },
   renderSection(title, renderedSubNodes) {
-    return `<${title}>\n${renderedSubNodes}\n</${title}>`;
+    return `<${title}>\n${renderedSubNodes.join("\n\n")}\n</${title}>`;
   },
   renderSubsection(renderedSubNodes) {
     return renderedSubNodes.join("\n");
