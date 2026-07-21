@@ -1,6 +1,10 @@
 {
   "name": "@4arch/strompt",
-  "version": "1.0.8",
+  "version": "1.0.9",
+  "repository": {
+    "type": "git",
+    "url": "github:Archit404Error/strompt"
+  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "author": "Archit Mehta",
