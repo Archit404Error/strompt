@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Strompt (***str***uctured pr***ompt***s) is an opinionated, extensible **prompt rendering** library. Strompt is designed to enable the construction of consistent, reusable prompts in agentic applications.
+Strompt (***str***uctured pr***ompt***s) is an opinionated, extensible, zero-dependency **prompt rendering** library. Strompt is designed to enable the construction of consistent, reusable prompts in agentic applications.
 
 The goal of Strompt is to create prompts that are readable (easy to debug), correct (typo-free), and maintainable.
 
@@ -146,3 +146,24 @@ Prompt:
 {background info}
 </user request>
 ```
+
+## Extensibility
+
+Strompt is designed to be fully extensible, enabling you to override or even define your own Prompt Renderers.
+
+Currently, the only implemented renderer is `MarkdownPromptRenderer`, which renders prompts in Markdown.
+
+To build a custom renderer for specific nodes, you can override the prompt renderer's rendering strategy using the `overrideSpec` method:
+
+```js
+import { MarkdownPromptRenderer } from "@4arch/strompt";
+
+const customRenderer = new MarkdownPromptRenderer();
+customRenderer.overrideSpec({
+  renderSectionText(text) {
+    return text.toUpperCase(); // Render all .text() nodes in uppercase
+  },
+});
+```
+
+You can also define a new renderer from scratch simply by subclassing the `PromptRenderer` base class and passing a complete `PromptRendererSpec` to the super constructor.
