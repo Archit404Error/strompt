@@ -1,0 +1,12 @@
+{
+  "name": "PromptRenderer",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Archit Mehta",
+  "devDependencies": {
+    "typescript": "^7.0.2"
+  },
+  "scripts": {
+    "build": "tsc"
+  }
+}
