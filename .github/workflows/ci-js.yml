@@ -1,0 +1,37 @@
+name: JS CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "packages/js/**"
+      - "spec/**"
+      - ".github/workflows/ci-js.yml"
+  pull_request:
+    paths:
+      - "packages/js/**"
+      - "spec/**"
+      - ".github/workflows/ci-js.yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: packages/js
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: yarn
+          cache-dependency-path: packages/js/yarn.lock
+
+      - run: yarn install --frozen-lockfile
+
+      - run: yarn typecheck
+
+      - run: yarn test
