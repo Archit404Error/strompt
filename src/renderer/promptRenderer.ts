@@ -1,54 +1,76 @@
 import { PromptNode, PromptRendererSpec } from "./types";
 
+function normalizeContent(
+  spec: PromptRendererSpec,
+  tagName: string,
+  text: string,
+) {
+  return spec.normalizeContent?.(tagName, text) ?? text;
+}
+
 class SectionHeader {
   private spec: PromptRendererSpec;
+  private sectionTitle: string;
   private text: string;
 
-  constructor(spec: PromptRendererSpec, text: string) {
+  constructor(spec: PromptRendererSpec, sectionTitle: string, text: string) {
     this.spec = spec;
+    this.sectionTitle = sectionTitle;
     this.text = text;
   }
 
   public render() {
-    return this.spec.renderSectionHeader(this.text);
+    return this.spec.renderSectionHeader(
+      normalizeContent(this.spec, this.sectionTitle, this.text),
+    );
   }
 }
 
 class SectionSubheader implements PromptNode {
   private spec: PromptRendererSpec;
+  private sectionTitle: string;
   private text: string;
 
-  constructor(spec: PromptRendererSpec, text: string) {
+  constructor(spec: PromptRendererSpec, sectionTitle: string, text: string) {
     this.spec = spec;
+    this.sectionTitle = sectionTitle;
     this.text = text;
   }
 
   public render() {
-    return this.spec.renderSectionSubheader(this.text);
+    return this.spec.renderSectionSubheader(
+      normalizeContent(this.spec, this.sectionTitle, this.text),
+    );
   }
 }
 
 class SectionText implements PromptNode {
   private spec: PromptRendererSpec;
+  private sectionTitle: string;
   private text: string;
 
-  constructor(spec: PromptRendererSpec, text: string) {
+  constructor(spec: PromptRendererSpec, sectionTitle: string, text: string) {
     this.spec = spec;
+    this.sectionTitle = sectionTitle;
     this.text = text;
   }
 
   public render() {
-    return this.spec.renderSectionText(this.text);
+    return this.spec.renderSectionText(
+      normalizeContent(this.spec, this.sectionTitle, this.text),
+    );
   }
 }
 
 abstract class SectionList implements PromptNode {
   protected spec: PromptRendererSpec;
+  protected sectionTitle: string;
   protected title: string;
   protected bullets: string[];
 
-  constructor(spec: PromptRendererSpec, title: string) {
+  constructor(spec: PromptRendererSpec, sectionTitle: string, title: string) {
     this.spec = spec;
+    this.sectionTitle = sectionTitle;
     this.title = title;
     this.bullets = [];
   }
@@ -65,23 +87,40 @@ abstract class SectionList implements PromptNode {
     return this;
   }
 
+  protected normalizedTitle() {
+    return normalizeContent(this.spec, this.sectionTitle, this.title);
+  }
+
+  protected normalizedBullets() {
+    return this.bullets.map((bullet) =>
+      normalizeContent(this.spec, this.sectionTitle, bullet),
+    );
+  }
+
   public abstract render(): string;
 }
 
 class SectionOrderedList extends SectionList {
   public render() {
-    return this.spec.renderSectionOrderedList(this.title, this.bullets);
+    return this.spec.renderSectionOrderedList(
+      this.normalizedTitle(),
+      this.normalizedBullets(),
+    );
   }
 }
 
 class SectionUnorderedList extends SectionList {
   public render() {
-    return this.spec.renderSectionUnorderedList(this.title, this.bullets);
+    return this.spec.renderSectionUnorderedList(
+      this.normalizedTitle(),
+      this.normalizedBullets(),
+    );
   }
 }
 
 class SectionDocumentList implements PromptNode {
   private spec: PromptRendererSpec;
+  private sectionTitle: string;
   private title: string;
   private boundary: string;
   private documentType: string;
@@ -89,11 +128,13 @@ class SectionDocumentList implements PromptNode {
 
   constructor(
     spec: PromptRendererSpec,
+    sectionTitle: string,
     title: string,
     boundary: string,
     documentType: string,
   ) {
     this.spec = spec;
+    this.sectionTitle = sectionTitle;
     this.title = title;
     this.boundary = boundary;
     this.documentType = documentType;
@@ -112,23 +153,33 @@ class SectionDocumentList implements PromptNode {
     return this;
   }
 
+  private normalizeDocumentContent(text: string) {
+    return normalizeContent(
+      this.spec,
+      this.boundary,
+      normalizeContent(this.spec, this.sectionTitle, text),
+    );
+  }
+
   public render() {
     return this.spec.renderSectionDocumentList(
-      this.title,
+      normalizeContent(this.spec, this.sectionTitle, this.title),
       this.boundary,
-      this.documentType,
-      this.documents,
+      this.normalizeDocumentContent(this.documentType),
+      this.documents.map((document) => this.normalizeDocumentContent(document)),
     );
   }
 }
 
 class PromptSubsection implements PromptNode {
   private spec: PromptRendererSpec;
+  private sectionTitle: string;
   private children: PromptNode[];
 
-  constructor(spec: PromptRendererSpec, header: string) {
+  constructor(spec: PromptRendererSpec, sectionTitle: string, header: string) {
     this.spec = spec;
-    this.children = [new SectionHeader(this.spec, header)];
+    this.sectionTitle = sectionTitle;
+    this.children = [new SectionHeader(this.spec, this.sectionTitle, header)];
   }
 
   /**
@@ -138,7 +189,9 @@ class PromptSubsection implements PromptNode {
    * @returns The current `PromptSubsection` instance
    */
   public subheader(text: string) {
-    this.children.push(new SectionSubheader(this.spec, text));
+    this.children.push(
+      new SectionSubheader(this.spec, this.sectionTitle, text),
+    );
 
     return this;
   }
@@ -150,7 +203,7 @@ class PromptSubsection implements PromptNode {
    * @returns The current `PromptSubsection` instance
    */
   public text(text: string) {
-    this.children.push(new SectionText(this.spec, text));
+    this.children.push(new SectionText(this.spec, this.sectionTitle, text));
 
     return this;
   }
@@ -167,7 +220,11 @@ class PromptSubsection implements PromptNode {
     title: string,
     buildOrderedList?: (orderedList: SectionOrderedList) => void,
   ) {
-    const orderedList = new SectionOrderedList(this.spec, title);
+    const orderedList = new SectionOrderedList(
+      this.spec,
+      this.sectionTitle,
+      title,
+    );
 
     buildOrderedList?.(orderedList);
 
@@ -188,7 +245,11 @@ class PromptSubsection implements PromptNode {
     title: string,
     buildUnorderedList?: (unorderedList: SectionUnorderedList) => void,
   ) {
-    const unorderedList = new SectionUnorderedList(this.spec, title);
+    const unorderedList = new SectionUnorderedList(
+      this.spec,
+      this.sectionTitle,
+      title,
+    );
 
     buildUnorderedList?.(unorderedList);
 
@@ -215,6 +276,7 @@ class PromptSubsection implements PromptNode {
   ) {
     const documentList = new SectionDocumentList(
       this.spec,
+      this.sectionTitle,
       title,
       boundary,
       documentType,
@@ -256,7 +318,7 @@ class PromptSection implements PromptNode {
     header: string,
     buildSubsection?: (subsection: PromptSubsection) => void,
   ) {
-    const subsection = new PromptSubsection(this.spec, header);
+    const subsection = new PromptSubsection(this.spec, this.title, header);
 
     buildSubsection?.(subsection);
 

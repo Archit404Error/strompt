@@ -1,6 +1,15 @@
 import { PromptRenderer } from "./promptRenderer";
 import { PromptRendererSpec } from "./types";
 
+/**
+ * Escapes all regex special characters in a given string
+ * @param text string to escape
+ * @returns regex-escaped string
+ */
+function escapeRegex(text: string) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 const markdownRendererSpec: PromptRendererSpec = {
   renderPrompt(renderedSubNodes) {
     return renderedSubNodes.join("\n\n");
@@ -40,6 +49,22 @@ const markdownRendererSpec: PromptRendererSpec = {
     const renderedBullets = bullets.map((bullet) => `- ${bullet}`).join("\n");
 
     return `${title}:\n${renderedBullets}`;
+  },
+  normalizeContent(tagName, text) {
+    if (!tagName) {
+      return text;
+    }
+
+    // Matches opening, closing, and self-closing tags for exactly `tagName`, tolerating
+    // case differences, inner whitespace, and attributes
+    const conflictingTag = new RegExp(
+      `<\\s*/?\\s*${escapeRegex(tagName)}(?=[\\s/>])[^>]*>`,
+      "gi",
+    );
+
+    return text.replace(conflictingTag, (tag) =>
+      tag.replace(/</g, "&lt;").replace(/>/g, "&gt;"),
+    );
   },
 };
 

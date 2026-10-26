@@ -90,4 +90,14 @@ export interface PromptRendererSpec {
     documentType: string,
     documents: string[],
   ) => string;
+
+  /**
+   * Normalizes content that would conflict with an enclosing boundary tag. Called on
+   * every PromptNode during rendering
+   *
+   * @param tagName name of the enclosing section title or document list boundary
+   * @param text content to normalize
+   * @returns Normalized content
+   */
+  normalizeContent?: (tagName: string, text: string) => string;
 }
