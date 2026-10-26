@@ -3,3 +3,4 @@
 .npmrc
 dist/
 node_modules/
+coverage/

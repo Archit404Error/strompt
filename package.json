@@ -10,13 +10,22 @@
   "author": "Archit Mehta",
   "license": "MIT",
   "devDependencies": {
-    "typescript": "^7.0.2"
+    "@types/node": "^24",
+    "@vitest/coverage-v8": "^5.0.5",
+    "fast-check": "^4.10.2",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
   },
   "files": [
     "dist"
   ],
   "scripts": {
     "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit && tsc -p tests",
     "push": "yarn build && yarn publish --access=public"
   }
 }

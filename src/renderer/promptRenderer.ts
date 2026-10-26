@@ -346,7 +346,7 @@ export class PromptRenderer implements PromptNode {
    *  every `PromptNode`
    */
   constructor(spec: PromptRendererSpec) {
-    this.spec = spec;
+    this.spec = { ...spec };
     this.children = [];
   }
 
