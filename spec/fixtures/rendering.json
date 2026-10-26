@@ -1,0 +1,187 @@
+{
+  "kind": "render",
+  "description": "MarkdownPromptRenderer rendering",
+  "cases": [
+    {
+      "name": "renders a full prompt with every node type",
+      "prompt": [
+        {
+          "title": "role",
+          "subsections": [
+            {
+              "header": "Identity",
+              "nodes": [{ "type": "text", "text": "You are a helpful assistant." }]
+            }
+          ]
+        },
+        {
+          "title": "task",
+          "subsections": [
+            {
+              "header": "Instructions",
+              "nodes": [
+                { "type": "subheader", "text": "Steps" },
+                {
+                  "type": "orderedList",
+                  "title": "Do this",
+                  "bullets": ["Read the files", "Summarize them"]
+                },
+                {
+                  "type": "unorderedList",
+                  "title": "Constraints",
+                  "bullets": ["Be concise", "Cite sources"]
+                }
+              ]
+            },
+            {
+              "header": "Inputs",
+              "nodes": [
+                {
+                  "type": "documents",
+                  "title": "Files",
+                  "boundary": "files",
+                  "documentType": "File",
+                  "documents": ["first file", "second file"]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "expected": [
+        "<role>",
+        "# Identity",
+        "You are a helpful assistant.",
+        "</role>",
+        "",
+        "<task>",
+        "# Instructions",
+        "## Steps",
+        "Do this:",
+        "1. Read the files",
+        "2. Summarize them",
+        "Constraints:",
+        "- Be concise",
+        "- Cite sources",
+        "",
+        "# Inputs",
+        "Files:",
+        "<files>",
+        "[File 1]",
+        "first file",
+        "",
+        "[File 2]",
+        "second file",
+        "</files>",
+        "</task>"
+      ]
+    },
+    {
+      "name": "renders an empty prompt",
+      "prompt": [],
+      "expected": [""]
+    },
+    {
+      "name": "renders empty sections and lists",
+      "prompt": [
+        { "title": "empty", "subsections": [] },
+        {
+          "title": "task",
+          "subsections": [
+            {
+              "header": "Inputs",
+              "nodes": [
+                { "type": "orderedList", "title": "Steps", "bullets": [] },
+                { "type": "unorderedList", "title": "Notes", "bullets": [] },
+                {
+                  "type": "documents",
+                  "title": "Files",
+                  "boundary": "files",
+                  "documentType": "File",
+                  "documents": []
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "expected": [
+        "<empty>",
+        "",
+        "</empty>",
+        "",
+        "<task>",
+        "# Inputs",
+        "Steps:",
+        "",
+        "Notes:",
+        "",
+        "Files:",
+        "<files>",
+        "",
+        "</files>",
+        "</task>"
+      ]
+    },
+    {
+      "name": "leaves ordinary markdown and unrelated tags in content untouched",
+      "prompt": [
+        {
+          "title": "task",
+          "subsections": [
+            {
+              "header": "Notes",
+              "nodes": [
+                {
+                  "type": "text",
+                  "text": "Use `<div>` tags, **bold**, & <context>quotes</context>."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "expected": [
+        "<task>",
+        "# Notes",
+        "Use `<div>` tags, **bold**, & <context>quotes</context>.",
+        "</task>"
+      ]
+    },
+    {
+      "name": "renders multi-line documents verbatim",
+      "prompt": [
+        {
+          "title": "task",
+          "subsections": [
+            {
+              "header": "Inputs",
+              "nodes": [
+                {
+                  "type": "documents",
+                  "title": "Files",
+                  "boundary": "files",
+                  "documentType": "File",
+                  "documents": ["line one\n\nline three\n  indented"]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "expected": [
+        "<task>",
+        "# Inputs",
+        "Files:",
+        "<files>",
+        "[File 1]",
+        "line one",
+        "",
+        "line three",
+        "  indented",
+        "</files>",
+        "</task>"
+      ]
+    }
+  ]
+}

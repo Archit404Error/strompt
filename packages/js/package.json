@@ -3,7 +3,8 @@
   "version": "1.0.10",
   "repository": {
     "type": "git",
-    "url": "github:Archit404Error/strompt"
+    "url": "git+https://github.com/Archit404Error/strompt.git",
+    "directory": "packages/js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

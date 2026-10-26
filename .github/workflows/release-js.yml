@@ -1,0 +1,41 @@
+name: Release JS
+
+on:
+  push:
+    tags: ["js-v*"]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: npm
+
+    permissions:
+      contents: read
+      id-token: write
+
+    defaults:
+      run:
+        working-directory: packages/js
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: yarn
+          cache-dependency-path: packages/js/yarn.lock
+          registry-url: https://registry.npmjs.org
+
+      - name: Check that the tag matches the package version
+        run: test "js-v$(node -p 'require("./package.json").version')" = "$GITHUB_REF_NAME"
+
+      - run: yarn install --frozen-lockfile
+
+      - run: yarn typecheck
+
+      - run: yarn test
+
+      - run: yarn build
+
+      - run: npm publish --access public

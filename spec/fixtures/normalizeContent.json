@@ -1,0 +1,173 @@
+{
+  "kind": "normalize",
+  "description": "markdownRendererSpec.normalizeContent",
+  "cases": [
+    { "name": "escapes a closing tag", "tagName": "task", "text": "</task>", "expected": "&lt;/task&gt;" },
+    { "name": "escapes an opening tag", "tagName": "task", "text": "<task>", "expected": "&lt;task&gt;" },
+    { "name": "escapes a self-closing tag", "tagName": "task", "text": "<task/>", "expected": "&lt;task/&gt;" },
+    {
+      "name": "escapes a self-closing tag with space",
+      "tagName": "task",
+      "text": "<task />",
+      "expected": "&lt;task /&gt;"
+    },
+    { "name": "escapes an uppercase tag", "tagName": "task", "text": "</TASK>", "expected": "&lt;/TASK&gt;" },
+    { "name": "escapes a mixed case tag", "tagName": "task", "text": "<TaSk>", "expected": "&lt;TaSk&gt;" },
+    {
+      "name": "escapes a tag with whitespace around the slash",
+      "tagName": "task",
+      "text": "< / task >",
+      "expected": "&lt; / task &gt;"
+    },
+    {
+      "name": "escapes a tag with newlines inside it",
+      "tagName": "task",
+      "text": "<\n/task\n>",
+      "expected": "&lt;\n/task\n&gt;"
+    },
+    {
+      "name": "escapes a tag with attributes",
+      "tagName": "task",
+      "text": "<task id=\"x\">",
+      "expected": "&lt;task id=\"x\"&gt;"
+    },
+    {
+      "name": "escapes a closing tag with attributes",
+      "tagName": "task",
+      "text": "</task foo>",
+      "expected": "&lt;/task foo&gt;"
+    },
+    {
+      "name": "escapes an unterminated tag at the end of the text",
+      "tagName": "task",
+      "text": "</task",
+      "expected": "&lt;/task"
+    },
+    {
+      "name": "escapes an unterminated tag followed by text",
+      "tagName": "task",
+      "text": "<task is next",
+      "expected": "&lt;task is next"
+    },
+    {
+      "name": "escapes an unterminated tag before another tag",
+      "tagName": "task",
+      "text": "<task <task>",
+      "expected": "&lt;task &lt;task&gt;"
+    },
+
+    { "name": "leaves a longer tag name untouched", "tagName": "task", "text": "<tasks></tasks>", "expected": "<tasks></tasks>" },
+    {
+      "name": "leaves a tag name with a suffix untouched",
+      "tagName": "task",
+      "text": "<task_list></task-list>",
+      "expected": "<task_list></task-list>"
+    },
+    {
+      "name": "leaves a tag name with a prefix untouched",
+      "tagName": "task",
+      "text": "<subtask></mytask>",
+      "expected": "<subtask></mytask>"
+    },
+    {
+      "name": "leaves unrelated tags untouched",
+      "tagName": "task",
+      "text": "<context></context><b>bold</b>",
+      "expected": "<context></context><b>bold</b>"
+    },
+    {
+      "name": "leaves an unterminated longer tag name untouched",
+      "tagName": "task",
+      "text": "</tasks",
+      "expected": "</tasks"
+    },
+    {
+      "name": "leaves a tag name followed by punctuation untouched",
+      "tagName": "task",
+      "text": "<task: do it",
+      "expected": "<task: do it"
+    },
+    { "name": "leaves a bare word untouched", "tagName": "task", "text": "the task is </ done", "expected": "the task is </ done" },
+    { "name": "leaves an already escaped tag untouched", "tagName": "task", "text": "&lt;/task&gt;", "expected": "&lt;/task&gt;" },
+    { "name": "leaves plain text untouched", "tagName": "task", "text": "no tags here at all", "expected": "no tags here at all" },
+    { "name": "leaves an empty string untouched", "tagName": "task", "text": "", "expected": "" },
+
+    {
+      "name": "escapes every occurrence while preserving surrounding text",
+      "tagName": "task",
+      "text": "a </task> b <task> c <tasks> d </TASK>",
+      "expected": "a &lt;/task&gt; b &lt;task&gt; c <tasks> d &lt;/TASK&gt;"
+    },
+
+    { "name": "escapes a bare dangling '<' at the end of the text", "tagName": "task", "text": "a <", "expected": "a &lt;" },
+    { "name": "escapes a dangling '</' at the end of the text", "tagName": "task", "text": "a </", "expected": "a &lt;/" },
+    {
+      "name": "escapes a dangling '<' followed by whitespace at the end of the text",
+      "tagName": "task",
+      "text": "a < / \n",
+      "expected": "a &lt; / \n"
+    },
+    { "name": "only escapes a dangling '<' at the end of the text", "tagName": "task", "text": "a < b <", "expected": "a < b &lt;" },
+
+    { "name": "returns the text unchanged when the tag name is empty", "tagName": "", "text": "<></>< >", "expected": "<></>< >" },
+
+    { "name": "treats '.' in tag names literally", "tagName": "a.b", "text": "</a.b> </axb>", "expected": "&lt;/a.b&gt; </axb>" },
+    { "name": "treats '+' in tag names literally", "tagName": "c++", "text": "</c++> </c>", "expected": "&lt;/c++&gt; </c>" },
+    { "name": "treats '|' in tag names literally", "tagName": "a|b", "text": "</a|b> </a>", "expected": "&lt;/a|b&gt; </a>" },
+    { "name": "treats '[]' in tag names literally", "tagName": "[x]", "text": "<[x]> <x>", "expected": "&lt;[x]&gt; <x>" },
+    { "name": "treats '*' in tag names literally", "tagName": "x*", "text": "</x*> </xxx>", "expected": "&lt;/x*&gt; </xxx>" },
+    { "name": "treats '$' in tag names literally", "tagName": "$1", "text": "</$1> </1>", "expected": "&lt;/$1&gt; </1>" },
+    { "name": "treats '()' in tag names literally", "tagName": "(g)", "text": "<(g)> <g>", "expected": "&lt;(g)&gt; <g>" },
+    { "name": "treats '\\' in tag names literally", "tagName": "a\\b", "text": "</a\\b> </ab>", "expected": "&lt;/a\\b&gt; </ab>" },
+
+    {
+      "name": "supports tag names containing hyphens and underscores",
+      "tagName": "user-input_v2",
+      "text": "</user-input_v2> </user-input>",
+      "expected": "&lt;/user-input_v2&gt; </user-input>"
+    },
+    {
+      "name": "does not let a quoted '>' inside attributes re-form a tag",
+      "tagName": "task",
+      "text": "<task a=\">\">",
+      "expected": "&lt;task a=\"&gt;\">"
+    },
+
+    {
+      "name": "treats a non-breaking space as whitespace inside a tag",
+      "tagName": "task",
+      "text": "<\u00a0task>",
+      "expected": "&lt;\u00a0task&gt;"
+    },
+    {
+      "name": "treats a byte order mark as whitespace inside a tag",
+      "tagName": "task",
+      "text": "<\ufefftask>",
+      "expected": "&lt;\ufefftask&gt;"
+    },
+    {
+      "name": "does not treat ASCII separator control characters as whitespace",
+      "tagName": "task",
+      "text": "<\u001ctask> <\u0085task>",
+      "expected": "<\u001ctask> <\u0085task>"
+    },
+    {
+      "name": "matches non-ASCII letters case-insensitively",
+      "tagName": "äbc",
+      "text": "<ÄBC>",
+      "expected": "&lt;ÄBC&gt;"
+    },
+    {
+      "name": "does not fold a kelvin sign onto an ASCII k",
+      "tagName": "kelvin",
+      "text": "<\u212aelvin>",
+      "expected": "<\u212aelvin>"
+    },
+    {
+      "name": "does not fold a long s onto an ASCII s",
+      "tagName": "task",
+      "text": "<ta\u017fk>",
+      "expected": "<ta\u017fk>"
+    }
+  ]
+}
